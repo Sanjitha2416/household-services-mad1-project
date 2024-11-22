@@ -1,3 +1,32 @@
 *{
     margin:10px;
 }
+
+.my_container{
+    border: 2px solid darkviolet;
+}
+
+.my_panel{
+    width: 100%;
+    margin: auto;
+    height: auto;
+    border: 1px dashed purple;
+}
+
+.input_form{
+    border: 1px solid black;
+    width: 600px;
+    height: 1000px;
+    margin: auto;
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 16px;
+    text-align: justify;
+}
+
+.center{
+    text-align: center;
+    margin: auto;
+    color: darkorchid;
+}

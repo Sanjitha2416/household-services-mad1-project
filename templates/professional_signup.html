@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="/household-services-mad1-project/static/styles/main.css">
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <title>Professional Signup</title>
+    </head>
+<body>
+    <div class="my_container">
+        <div class="center"><h1>A-Z Household Services</h1></div>
+        <div class="my_panel">
+            <div class="center"><h3>Service Professional Signup</h3></div>
+            <div class="input_form">
+                <div class="row mb-3 align-items-center">
+                    <label for="user_name" class="form-label">E-Mail ID (User Name)</label>
+                    <div class="col-sm-9">
+                    <input type="email" class="form-control" id="exampleFormControlInput1" placeholder="xyz@gmail.com">
+                </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                    <label for="password" class="form-label">Password</label>
+                    <div class="col-sm-9">
+                    <input type="password" class="form-control" id="exampleFormControlInput1" placeholder="******">
+                </div>
+                </div>
+                  
+                <div class="row mb-3 align-items-center">
+                    <label for="name" class="form-label">Full Name</label>
+                    <div class="col-sm-9">
+                    <input type="text" class="form-control" id="name" placeholder="XYZ">
+                </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                    <label for="serviceName" class="form-label">Service Name</label>
+                    <div class="col-sm-9">
+                    <select class="form-select" id="serviceName" name="service_name" required>
+                      <option selected disabled>Select available services...</option>
+                      <option value="ac_servicing">AC Servicing</option>
+                      <option value="plumbing">Plumbing</option>
+                      <option value="cleaning">Home Cleaning</option>
+                      <option value="electrical">Electrical Work</option>
+                    </select>
+                </div>
+                  </div>
+                  
+                <div class="row mb-3 align-items-center">
+                    <label for="experience" class="form-label">Experience (in yrs)</label>
+                    <div class="col-sm-9">
+                    <input type="text" class="form-control" id="experience" placeholder="5">
+                </div>
+                </div>
+
+                <div class="row mb-3 align-items-center">
+                    <label for="profileDocs" class="form-label">Attach Documents (Single PDF)</label>
+                    <div class="col-sm-9">
+                    <div class="input-group">
+                      <input class="form-control" type="file" id="profileDocs" name="profile_docs" accept=".pdf" style="display: none;" required>
+                      <label class="btn btn-primary" for="profileDocs">Upload File</label>
+                    </div>
+                    </div>
+                  </div>
+                  
+                <div class="row mb-3 align-items-center">
+                    <label for="address" class="form-label">Address</label>
+                    <div class="col-sm-9">
+                    <input type="text" class="form-control" id="address" placeholder="No.42, Adyar, Chennai-20">
+                </div>
+                </div>
+
+                <div class="mb-3">
+                    <button type="button" class="btn btn-primary">Register</button>
+                    Existing user?<a href="C:\App Dev 1\household-services-mad1-project\templates\login.html">Login</a>
+                </div>
+            </div> 
+        </div>
+    </div>   
+</body>
+</html>
