@@ -16,6 +16,18 @@
 .input_form{
     border: 1px solid black;
     width: 600px;
+    height: 500px;
+    margin: auto;
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 16px;
+    text-align: justify;
+}
+
+.input_formx{
+    border: 1px solid black;
+    width: 600px;
     height: 1000px;
     margin: auto;
     margin-top: 20px;
@@ -25,8 +37,27 @@
     text-align: justify;
 }
 
+.input_formy{
+    border: 1px solid black;
+    width: 600px;
+    height: 600px;
+    margin: auto;
+    margin-top: 20px;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 16px;
+    text-align: justify;
+}
+
+
 .center{
     text-align: center;
     margin: auto;
     color: darkorchid;
+}
+
+.error_msg{
+    text-align: center;
+    margin: auto;
+    color: maroon;
 }
