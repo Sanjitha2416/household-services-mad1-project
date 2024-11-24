@@ -5,7 +5,7 @@ db = SQLAlchemy()
 
 class CustomerDetails(db.Model):
     __tablename__ = "customer_details"
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
     email = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
     role = db.Column(db.Integer, default=1, nullable=False)  # 0 = admin, 1 = customer
