@@ -7,9 +7,11 @@ def setup_app():
     app= Flask(__name__)
     app.config["SQLALCHEMY_DATABASE_URI"]="sqlite:///household_services.sqlite3"
     db.init_app(app)
+
     app.app_context().push()
     app.debug=True
     print("App has started....")
+
 
 setup_app()
 from backend.controllers import *

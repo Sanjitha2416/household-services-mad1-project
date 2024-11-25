@@ -10,19 +10,21 @@
                         <tr>
                             <th>ID</th>
                             <th>Service Name</th>
-                            <th>Base Price</th>
+                            <th>Subcategories and Prices</th>
                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         {%for service in services%}
                         <tr>
-                            <td>1</td>
+                            <td>{{service.id}}</td>
                             <td>{{service.name}}</td>
-                            <td>{{service.base_price}}</td>
+
                             <td>
-                                <button class="btn btn-sm btn-warning">Edit</button>
-                                <button class="btn btn-sm btn-danger">Delete</button>
+                                <a href="{{ url_for('edit_service', service_id=service.id, name=service.name) }}" class="btn btn-sm btn-warning">Edit</a>
+                                <form action="{{ url_for('delete_service', service_id=service.id, name=service.name) }}" method="POST" style="display:inline;">
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this service?');">Delete</button>
+                                </form>
                             </td>
                         </tr>
                         {%endfor%}
@@ -34,66 +36,44 @@
                 <a href="/service/{{name}}" button type="button" class="btn btn-success">+ New Service</a>
         
                 <!-- Professionals Section -->
-                <h2 class="mt-5">Professionals</h2>
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Experience (Yrs)</th>
-                            <th>Service Name</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Professional data1</td>
-                            <td>5</td>
-                            <td>Service1</td>
-                            <td>
-                                <button class="btn btn-sm btn-success">Approve</button>
-                                <button class="btn btn-sm btn-danger">Reject</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Professional data2</td>
-                            <td>3</td>
-                            <td>Service2</td>
-                            <td>
-                                <button class="btn btn-sm btn-success">Approve</button>
-                                <button class="btn btn-sm btn-danger">Reject</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-        
-                <!-- Service Requests Section -->
-                <h2 class="mt-5">Service Requests</h2>
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Assigned Professional (if any)</th>
-                            <th>Requested Date</th>
-                            <th>Status (R/A/C)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>1</td>
-                            <td>Professional1</td>
-                            <td>2024-11-20</td>
-                            <td>Requested</td>
-                        </tr>
-                        <tr>
-                            <td>2</td>
-                            <td>Professional2</td>
-                            <td>2024-11-21</td>
-                            <td>Accepted</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-    {%endblock%}
+                <h2>New Professionals</h2>
+                {% if pending_professionals %}
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Service</th>
+                                <th>Experience</th>
+                                <th>Address</th>
+                                <th>Pincode</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for professional in pending_professionals %}
+                                <tr>
+                                    <td>{{ professional.id }}</td>
+                                    <td>{{ professional.name }}</td>
+                                    <td>{{ professional.email }}</td>
+                                    <td>{{ professional.service }}</td>
+                                    <td>{{ professional.experience }}</td>
+                                    <td>{{ professional.address }}</td>
+                                    <td>{{ professional.pincode }}</td>
+                                    <td>
+                                        <form method="POST" action="{{ url_for('approve_professional', professional_id=professional.id, name=name) }}">
+                                            <button type="submit" class="btn btn-sm btn-success">Approve</button>
+                                        </form>
+                                        <form method="POST" action="{{ url_for('reject_professional', professional_id=professional.id, name=name) }}">
+                                            <button type="submit" class="btn btn-sm btn-danger">Reject</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% else %}
+                    <p>No new professional requests at the moment.</p>
+                {% endif %}
+{%endblock%}

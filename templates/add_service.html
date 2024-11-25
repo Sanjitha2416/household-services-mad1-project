@@ -2,25 +2,39 @@
 {%block content%}
 
             <div class="center"><h3>+New Service</h3></div>
-            <form action="{{ url_for('add_service', name=name) }}" method="POST">
-            <div class="input_formy">
-                <div class="mb-3">
-                    <label for="name" class="form-label">Service Name</label>
-                    <input type="text" class="form-control" name="name" id="name" placeholder="Cleaning">
+            <form method="POST" action="{{ url_for('add_service', name=name) }}">
+                <label for="name">Service Name:</label>
+                <input type="text" id="name" name="name" required>
+              
+                <label for="description">Service Description:</label>
+                <textarea id="description" name="description" required></textarea>
+              
+                <div id="subcategories">
+                  <label>Subcategories:</label>
+                  <div class="subcategory">
+                    <input type="text" name="subcat_name[]" placeholder="Subcategory Name" required>
+                    <textarea name="subcat_desc[]" placeholder="Subcategory Description" required></textarea>
+                    <input type="number" name="subcat_price[]" placeholder="Subcategory Price" required>
+                  </div>
                 </div>
-                <div class="mb-3">
-                    <label for="description" class="form-label">Description</label>
-                    <input type="text" class="form-control" name="description" id="description" placeholder="This includes bathroom deep cleaning, kitchen cleaning, etc.">
-                </div>
-                <div class="mb-3">
-                    <label for="base_price" class="form-label">Price</label>
-                    <input type="integer" class="form-control" name="base_price" id="base_price" placeholder="2999">
-                </div>
-                
-                <div class="mb-3">
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                    <a href="admin_dashboard.html" type="button" class="btn btn-primary">Cancel</a>
-                </div>
-            </div> 
-            </form>
-            {%endblock%}
+              
+                <button type="button" onclick="addSubcategory()">Add Another Subcategory</button>
+                <button type="submit">Submit</button>
+              </form>
+              
+              <script>
+              function addSubcategory() {
+                const container = document.getElementById('subcategories');
+                const subcatDiv = document.createElement('div');
+                subcatDiv.classList.add('subcategory');
+                subcatDiv.innerHTML = `
+                  <input type="text" name="subcat_name[]" placeholder="Subcategory Name" required>
+                  <textarea name="subcat_desc[]" placeholder="Subcategory Description" required></textarea>
+                  <input type="number" name="subcat_price[]" placeholder="Subcategory Price" required>
+                `;
+                container.appendChild(subcatDiv);
+              }
+              </script>
+              
+{%endblock%}
+            

@@ -1,0 +1,17 @@
+{% extends "user_layout.html" %}
+
+{% block content %}
+
+<h1>{{ service.name }}</h1>
+<p>{{ service.description }}</p>
+
+<div class="subcategories-container">
+  {% for subcat in subcategories %}
+  <div class="subcategory-card">
+    <h3>{{ subcat.name }}</h3>
+    <p>{{ subcat.description }}</p>
+    <p><strong>Price:</strong> ${{ subcat.price }}</p>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

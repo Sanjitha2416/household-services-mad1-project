@@ -1,58 +1,66 @@
-{%extends "user_layout.html"%}
-{%block content%}
+{% extends "user_layout.html" %}
 
-        <!-- Service Options -->
-        <div class="container mt-4">
-            <h2 class="text-center">Looking For?</h2>
-            <div class="d-flex justify-content-center gap-3">
-                <button class="btn btn-primary">Electricals</button>
-                <button class="btn btn-primary">Plumbing</button>
-                <button class="btn btn-primary">House Cleaning</button>
-                <button class="btn btn-primary">AC Repair</button>
-            </div>
-        </div>
+{% block content %}
 
-        <!-- Service History -->
-        <div class="container mt-5">
-            <h2 class="text-center">Service History</h2>
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Service Name</th>
-                        <th>Professional Name</th>
-                        <th>Phone No.</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- Example rows -->
-                    <tr>
-                        <td>1</td>
-                        <td>Electrical Repair</td>
-                        <td>John Doe</td>
-                        <td>123-456-7890</td>
-                        <td>Requested</td>
-                        <td>
-                            <button class="btn btn-warning btn-sm">Close it?</button>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>2</td>
-                        <td>Plumbing</td>
-                        <td>Jane Smith</td>
-                        <td>987-654-3210</td>
-                        <td>Closed</td>
-                        <td>
+<!-- Service Options -->
+<div class="container mt-4">
+    <h2 class="text-center">Looking For?</h2>
+    <div class="services-container">
+        {% for service in services %}
+        <a href="{{ url_for('view_service', service_id=service.id) }}" class="card">
+          <h3>{{ service.name }}</h3>
+        </a>
+        {% endfor %}
+      </div>
+      
+</div>
+
+<!-- Service History -->
+<div class="container mt-5">
+    <h2 class="text-center">Service History</h2>
+    {% if message %}
+        <p class="text-center text-muted">{{ message }}</p>
+    {% else %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Service Name</th>
+                    <th>Professional Name</th>
+                    <th>Phone No.</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for service in service_history %}
+                <tr>
+                    <td>{{ service.id }}</td>
+                    <td>{{ service.name }}</td>
+                    <td>{{ service.professional_name }}</td>
+                    <td>{{ service.professional_phone }}</td>
+                    <td>{{ service.status }}</td>
+                    <td>
+                        {% if service.status == 'Requested' %}
+                            <button class="btn btn-warning btn-sm" onclick="closeService({{ service.id }})">Close it?</button>
+                        {% else %}
                             <button class="btn btn-success btn-sm" disabled>Closed</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFyKCQAqj5xBO4El1kQbsIW7rikj3aohQ0p3NOFhvGSIBlFT0p8CKzFSJw" crossorigin="anonymous"></script>
+<script>
+    function closeService(serviceId) {
+        // Logic to close the service request.
+        // This will probably involve making an AJAX call to the server
+        console.log('Closing service with ID: ' + serviceId);
+    }
+</script>
 
-    {%endblock%}
+
+{% endblock %}

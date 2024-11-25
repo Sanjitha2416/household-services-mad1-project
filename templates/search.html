@@ -1,0 +1,77 @@
+{% extends "admin_layout.html" %}
+{% block content %}
+    <div class="container mt-4">
+        <h2>Search Functionality</h2>
+
+        <!-- Search Form -->
+        <form method="POST" action="{{ url_for('search') }}">
+            <input type="radio" id="services" name="search_by" value="services" checked>
+            <label for="services">Search Services</label>
+            <input type="radio" id="customers" name="search_by" value="customers">
+            <label for="customers">Search Customers</label>
+            <input type="radio" id="professionals" name="search_by" value="professionals">
+            <label for="professionals">Search Professionals</label>
+        
+            <input type="text" name="search_query" placeholder="Enter search term">
+            <button type="submit">Search</button>
+        </form>
+
+        <h3>Search Results:</h3>
+        {% if results %}
+            <table class="table">
+                <thead>
+                    {% if search_by == 'customers' %}
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Address</th>
+                            <th>Pincode</th>
+                        </tr>
+                    {% elif search_by == 'professionals' %}
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Service</th>
+                            <th>Experience</th>
+                            <th>Status</th>
+                        </tr>
+                    {% elif search_by == 'services' %}
+                        <tr>
+                            <th>Service Name</th>
+                            <th>Description</th>
+                            <th>Base Price</th>
+                        </tr>
+                    {% endif %}
+                </thead>
+                <tbody>
+                    {% for result in results %}
+                        {% if search_by == 'customers' %}
+                            <tr>
+                                <td>{{ result.name }}</td>
+                                <td>{{ result.email }}</td>
+                                <td>{{ result.address }}</td>
+                                <td>{{ result.pincode }}</td>
+                            </tr>
+                        {% elif search_by == 'professionals' %}
+                            <tr>
+                                <td>{{ result.name }}</td>
+                                <td>{{ result.email }}</td>
+                                <td>{{ result.service }}</td>
+                                <td>{{ result.experience }}</td>
+                                <td>{{ result.status }}</td>
+                            </tr>
+                        {% elif search_by == 'services' %}
+                            <tr>
+                                <td>{{ result.name }}</td>
+                                <td>{{ result.description }}</td>
+                                <td>{{ result.base_price }}</td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No results found</p>
+        {% endif %}
+    </div>
+{% endblock %}
