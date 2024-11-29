@@ -1,66 +1,80 @@
 {% extends "user_layout.html" %}
-
 {% block content %}
-
-<!-- Service Options -->
-<div class="container mt-4">
-    <h2 class="text-center">Looking For?</h2>
-    <div class="services-container">
+    {% if services %}
+        <h2 class="text-center">Looking For?</h2>
         {% for service in services %}
-        <a href="{{ url_for('view_service', service_id=service.id) }}" class="card">
-          <h3>{{ service.name }}</h3>
-        </a>
+            <div class="outer_box">
+                <h3>{{ service.name }}</h3>
+                <div class="container">
+                    <div class="row">
+                        {% for subcategory in service.subcategories %}
+                            <div class="col">
+                                <div class="card" style="width: 18rem;">
+                                    <div class="card-body">
+                                        <h5 class="card-title">{{ subcategory.name }}</h5>
+                                        <h6 class="card-subtitle mb-2 text-muted">{{ subcategory.description }}</h6>
+                                        <h6 class="card-subtitle mb-2 text-muted">{{ subcategory.price }}</h6>
+                                        <form action="{{ url_for('book_service', customer_id=customer_id, service_id=service.id, name=name) }}" method="POST">
+                                            <input type="hidden" name="subcategory_id" value="{{ subcategory.id }}">
+                                            <input type="hidden" name="service_id" value="{{ service.id }}">
+                                            <button type="submit" class="btn btn-outline-primary">Book</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
         {% endfor %}
-      </div>
-      
-</div>
-
-<!-- Service History -->
-<div class="container mt-5">
-    <h2 class="text-center">Service History</h2>
-    {% if message %}
-        <p class="text-center text-muted">{{ message }}</p>
     {% else %}
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Service Name</th>
-                    <th>Professional Name</th>
-                    <th>Phone No.</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for service in service_history %}
-                <tr>
-                    <td>{{ service.id }}</td>
-                    <td>{{ service.name }}</td>
-                    <td>{{ service.professional_name }}</td>
-                    <td>{{ service.professional_phone }}</td>
-                    <td>{{ service.status }}</td>
-                    <td>
-                        {% if service.status == 'Requested' %}
-                            <button class="btn btn-warning btn-sm" onclick="closeService({{ service.id }})">Close it?</button>
-                        {% else %}
-                            <button class="btn btn-success btn-sm" disabled>Closed</button>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <p class="text-center text-muted">No services available.</p>
     {% endif %}
-</div>
 
-<script>
-    function closeService(serviceId) {
-        // Logic to close the service request.
-        // This will probably involve making an AJAX call to the server
-        console.log('Closing service with ID: ' + serviceId);
-    }
-</script>
+    <!-- Service History -->
+    <div class="container mt-5">
+        <h2 class="text-center">Service History</h2>
+        {% if message %}
+            <p class="text-center text-muted">{{ message }}</p>
+        {% else %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Service Name</th>
+                        <th>Professional Name</th>
+                        <th>Phone No.</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for service in service_history %}
+                        <tr>
+                            <td>{{ service.id }}</td>
+                            <td>{{ service.service_name }}</td>
+                            <td>{{ service.professional_name }}</td>
+                            <td>{{ service.professional_phone }}</td>
+                            <td>{{ service.status }}</td>
+                            <td>
+                                {% if service.status == 'Requested' %}
+                                    <button class="btn btn-warning btn-sm" onclick="closeService({{ service.id }})">Close it?</button>
+                                {% else %}
+                                    <button class="btn btn-success btn-sm" disabled>Closed</button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
 
-
+    <script>
+        function closeService(serviceId) {
+            // Logic to close the service request.
+            // This will probably involve making an AJAX call to the server
+            console.log('Closing service with ID: ' + serviceId);
+        }
+    </script>
 {% endblock %}

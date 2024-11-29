@@ -63,8 +63,7 @@ def signupp():
 def admin_dashboard(name):
     services=Service.query.all()
     pending_professionals = ProfessionalDetails.query.filter_by(status='Pending').all()
-    
-    return render_template("admin_dashboard.html", name=name, pending_professionals=pending_professionals)
+    return render_template("admin_dashboard.html", name=name, services=services, pending_professionals=pending_professionals)
 
 
 @app.route("/service/<name>", methods=["POST", "GET"])
@@ -192,9 +191,17 @@ def search():
     results = []
 
     if search_by == 'services':
-        results = db.session.query(Service.name, Service.description, Service.base_price) \
-            .filter(Service.name.like(f"%{search_query}%")).all()
-
+        results = db.session.query(
+        Service.name,
+        Service.description,
+        Subcategory.name.label('subcategory_name'),
+        Subcategory.price.label('subcategory_price')
+        ).join(
+        Subcategory, Subcategory.service_id == Service.id
+        ).filter(
+        Service.name.like(f"%{search_query}%")
+         ).all()
+        
     elif search_by == 'customers':
         results = db.session.query(CustomerDetails.name, CustomerDetails.email, 
                                    CustomerDetails.address, CustomerDetails.pincode) \
@@ -233,71 +240,56 @@ def search_professionals(search_text):
 
 @app.route("/user/<name>")
 def user_dashboard(name):
-    # Get the customer from the database
-    user = CustomerDetails.query.filter_by(email=name).first()
+    services=Service.query.all()
+    return render_template("user_dashboard.html",name=name,services=services)
 
-    if not user:
-        return redirect(url_for('home'))  # Redirect if user not found
 
-    # Get the service requests made by this user
-    service_requests = ServiceRequest.query.filter_by(customer_id=user.id).all()
+@app.route("/book_service/<customer_id>/<service_id>/<name>", methods=["GET", "POST"])
+def book_service(customer_id, service_id, name):
+    if request.method == "POST":
+        # Process service booking
+        subcategory_id = request.form.get("subcategory_id")
+        
+        # Check service and subcategory validity
+        service = Service.query.filter_by(id=service_id).first()
+        if not service:
+            return "Service not found", 404
 
-    if not service_requests:
-        # If no service requests, pass an empty list and a message
-        return render_template(
-            "user_dashboard.html", 
-            name=name, 
-            requests=[], 
-            message="You have not given service requests yet."
+        # Assign an available professional
+        professional = ProfessionalDetails.query.filter_by(service_id=service_id, is_available=True).first()
+        if not professional:
+            return "No professionals available for this service.", 404
+
+        # Create the service request
+        new_request = ServiceRequest(
+            customer_id=customer_id,
+            service_id=service_id,
+            subcategory_id=subcategory_id,
+            professional_id=professional.id,
+            status="Requested"
         )
+        db.session.add(new_request)
 
-    # Prepare the data for rendering
-    requests_with_details = []
-    for request in service_requests:
-        # Retrieve service and professional details for the request
-        service = Service.query.get(request.service_id)
-        professional = ProfessionalDetails.query.get(request.professional_id)
-        feedback = Feedback.query.filter_by(request_id=request.id).first()  # Optional feedback
+        # Mark professional as unavailable
+        professional.is_available = False
+        db.session.commit()
 
-        requests_with_details.append({
-            "id": request.id,
-            "service_name": service.name if service else "Unknown Service",
-            "professional_name": professional.full_name if professional else "Unknown Professional",
-            "status": request.status,
-            "feedback": feedback  # Can be None if no feedback
-        })
+        return redirect(url_for("user_dashboard", name=name))
+
+    # GET method: Show booking form
+    service = Service.query.filter_by(id=service_id).first()
+    if not service:
+        return "Service not found", 404
+
+    subcategories = Subcategory.query.filter_by(service_id=service_id).all()
+    available_professionals = ProfessionalDetails.query.filter_by(service_id=service_id, is_available=True).count()
 
     return render_template(
-        "user_dashboard.html",
+        "book_service.html",
+        customer_id=customer_id,
+        service_id=service_id,
         name=name,
-        requests=requests_with_details,
-        message=None  # No message since there are service requests
+        service_name=service.name,
+        subcategories=subcategories,
+        available_professionals=available_professionals
     )
-
-
-from datetime import datetime, timezone
-@app.route("/request_service", methods=["POST"])
-def request_service():
-    if request.method == "POST":
-        customer_id = request.form.get("customer_id")
-        service_id = request.form.get("service_id")
-        professional_id = request.form.get("professional_id")
-        address = request.form.get("address")
-
-        # Create a service request with a timezone-aware datetime
-        new_request = ServiceRequest(
-            date_time=datetime.now(timezone.utc),  
-            address=address,
-            status="Pending",
-            customer_id=customer_id,
-            professional_id=professional_id,
-            service_id=service_id,
-        )
-
-        db.session.add(new_request)
-        db.session.commit()
-        return redirect(url_for("user_dashboard", name=request.form.get("customer_name")))
-
-    return "Invalid request", 400
-
-

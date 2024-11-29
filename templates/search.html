@@ -38,8 +38,8 @@
                     {% elif search_by == 'services' %}
                         <tr>
                             <th>Service Name</th>
-                            <th>Description</th>
-                            <th>Base Price</th>
+                            <th>Subcategory</th>
+                            <th>Price</th>
                         </tr>
                     {% endif %}
                 </thead>
@@ -61,11 +61,11 @@
                                 <td>{{ result.status }}</td>
                             </tr>
                         {% elif search_by == 'services' %}
-                            <tr>
-                                <td>{{ result.name }}</td>
-                                <td>{{ result.description }}</td>
-                                <td>{{ result.base_price }}</td>
-                            </tr>
+                        <tr>
+                            <td>{{ result.name }}</td>
+                            <td>{{ result.subcategory_name }}</td>
+                            <td>{{ result.subcategory_price }}</td>
+                        </tr>
                         {% endif %}
                     {% endfor %}
                 </tbody>

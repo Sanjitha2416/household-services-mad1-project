@@ -15,10 +15,21 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {%for service in services%}
+                        {% for service in services %}
                         <tr>
-                            <td>{{service.id}}</td>
-                            <td>{{service.name}}</td>
+                            <td>{{ service.id }}</td>
+                            <td>{{ service.name }}</td>
+                            <td>
+                                {% if service.subcategories %}
+                                    <ul>
+                                        {% for subcategory in service.subcategories %}
+                                        <li>{{ subcategory.name }}: ₹{{ subcategory.price }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    No subcategories available.
+                                {% endif %}
+                            </td>
 
                             <td>
                                 <a href="{{ url_for('edit_service', service_id=service.id, name=service.name) }}" class="btn btn-sm btn-warning">Edit</a>

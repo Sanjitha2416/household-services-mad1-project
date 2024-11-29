@@ -1,0 +1,16 @@
+{% extends "user_layout.html" %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h2 class="text-center">Service Booking Confirmation</h2>
+        <div class="alert alert-success text-center">
+            <h4>Your service request has been successfully placed!</h4>
+            <p>Service: {{ service.name }}</p>
+            <p>Professional: {{ professional.name }}</p>
+            <p>Status: Requested</p>
+        </div>
+        <div class="text-center">
+            <a href="{{ url_for('user_dashboard', name=user.name) }}" class="btn btn-primary">Go to Dashboard</a>
+        </div>
+    </div>
+{% endblock %}
