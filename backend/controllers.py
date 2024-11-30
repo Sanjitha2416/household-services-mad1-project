@@ -241,55 +241,69 @@ def search_professionals(search_text):
 @app.route("/user/<name>")
 def user_dashboard(name):
     services=Service.query.all()
-    return render_template("user_dashboard.html",name=name,services=services)
+    customer = CustomerDetails.query.filter_by(email=name).first()
+    return render_template("user_dashboard.html",name=name,services=services,customer=customer)
 
+@app.route("/book_service/<int:customer_id>/<int:service_id>/<int:subcategory_id>/<name>", methods=["GET", "POST"])
+def book_service(customer_id, service_id, subcategory_id, name):
+    # Fetch the customer details
+    customer = CustomerDetails.query.filter_by(email=name).first()
+    customer = CustomerDetails.query.get(customer_id)
+    if not customer:
+        return "Customer not found", 404
 
-@app.route("/book_service/<customer_id>/<service_id>/<name>", methods=["GET", "POST"])
-def book_service(customer_id, service_id, name):
-    if request.method == "POST":
-        # Process service booking
-        subcategory_id = request.form.get("subcategory_id")
-        
-        # Check service and subcategory validity
-        service = Service.query.filter_by(id=service_id).first()
-        if not service:
-            return "Service not found", 404
-
-        # Assign an available professional
-        professional = ProfessionalDetails.query.filter_by(service_id=service_id, is_available=True).first()
-        if not professional:
-            return "No professionals available for this service.", 404
-
-        # Create the service request
-        new_request = ServiceRequest(
-            customer_id=customer_id,
-            service_id=service_id,
-            subcategory_id=subcategory_id,
-            professional_id=professional.id,
-            status="Requested"
-        )
-        db.session.add(new_request)
-
-        # Mark professional as unavailable
-        professional.is_available = False
-        db.session.commit()
-
-        return redirect(url_for("user_dashboard", name=name))
-
-    # GET method: Show booking form
-    service = Service.query.filter_by(id=service_id).first()
+    # Fetch the service details
+    service = Service.query.get(service_id)
     if not service:
         return "Service not found", 404
 
-    subcategories = Subcategory.query.filter_by(service_id=service_id).all()
-    available_professionals = ProfessionalDetails.query.filter_by(service_id=service_id, is_available=True).count()
+    # Fetch the subcategory details
+    subcategory = next((s for s in service.subcategories if s.id == subcategory_id), None)
+    if not subcategory:
+        return "Subcategory not found", 404
+    
+    # Fetch the professional details for this service and subcategory
+    professionals = ProfessionalDetails.query.filter_by(
+        service_id=service.id, 
+        subcategory_id=subcategory.id, 
+        is_available='TRUE', 
+        status='Approved'
+    ).all()
+    if not professionals:
+        return "No professionals available", 404
+
+    professional = professionals[0]
+
+    if request.method == "POST":
+        # Get form data (address and date/time)
+        address = request.form.get("address")
+        date_time = request.form.get("date_time")
+
+        # Create the service request
+        new_request = ServiceRequest(
+            date_time=date_time,
+            address=address,
+            status="Requested",
+            customer_id=customer.id,
+            service_id=service_id,
+            professional_id=professional.id
+        )
+
+        db.session.add(new_request)
+
+        # Mark the professional as unavailable
+        professional.is_available = False
+        db.session.commit()
+
+        # Redirect to user dashboard with success message
+        return redirect(f"/user/{name}")
 
     return render_template(
-        "book_service.html",
-        customer_id=customer_id,
-        service_id=service_id,
-        name=name,
-        service_name=service.name,
-        subcategories=subcategories,
-        available_professionals=available_professionals
+        "book_service.html", 
+        customer_id=customer_id, 
+        service_id=service_id, 
+        subcategory_id=subcategory_id, 
+        service_name=service.name, 
+        subcategory_name=subcategory.name, 
+        name=customer.email
     )

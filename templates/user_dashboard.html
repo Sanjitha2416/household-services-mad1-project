@@ -14,11 +14,9 @@
                                         <h5 class="card-title">{{ subcategory.name }}</h5>
                                         <h6 class="card-subtitle mb-2 text-muted">{{ subcategory.description }}</h6>
                                         <h6 class="card-subtitle mb-2 text-muted">{{ subcategory.price }}</h6>
-                                        <form action="{{ url_for('book_service', customer_id=customer_id, service_id=service.id, name=name) }}" method="POST">
-                                            <input type="hidden" name="subcategory_id" value="{{ subcategory.id }}">
-                                            <input type="hidden" name="service_id" value="{{ service.id }}">
-                                            <button type="submit" class="btn btn-outline-primary">Book</button>
-                                        </form>
+                                        {% for subcategory in service.subcategories %}
+                                        <a href="{{ url_for('book_service', customer_id=customer.id, service_id=service.id, name=customer.name, subcategory_id=subcategory.id) }}" type="button" class="btn btn-outline-primary">Book</a>
+                                        {% endfor %}
                                     </div>
                                 </div>
                             </div>

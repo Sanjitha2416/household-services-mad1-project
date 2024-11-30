@@ -28,12 +28,15 @@ class ProfessionalDetails(db.Model):
     password = db.Column(db.String, nullable=False)
     role = db.Column(db.Integer, default=1, nullable=False)  # 0 = admin, 1 = professional
     name = db.Column(db.String, nullable=False)
-    service = db.Column(db.String, nullable=False)
+    service_id = db.Column(db.Integer, db.ForeignKey('service.id'), nullable=False)  # Foreign key to Service
     experience = db.Column(db.Integer, nullable=False)  
     address = db.Column(db.String, nullable=False)
     pincode = db.Column(db.Integer, nullable=False)
     status = db.Column(db.String(20), default="Pending") 
+    is_available = db.Column(db.Boolean, default=True)
 
+    service = db.relationship('Service', backref='professionals')
+    
     # Relationship: Professional can handle multiple service requests
     service_requests = db.relationship(
         'ServiceRequest', 
@@ -82,6 +85,8 @@ class ServiceRequest(db.Model):
     customer_id = db.Column(db.Integer, db.ForeignKey("customer_details.id"), nullable=False)
     professional_id = db.Column(db.Integer, db.ForeignKey("professional_details.id"), nullable=False)
     service_id = db.Column(db.Integer, db.ForeignKey("service.id"), nullable=False)
+
+    
 
     # Relationship: A service request can have one feedback
     feedback = db.relationship(

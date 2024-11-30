@@ -1,16 +1,31 @@
-{% extends "user_layout.html" %}
+{% extends "user_layout.html" %} <!-- Inherit the main layout -->
 
 {% block content %}
-    <div class="container mt-5">
-        <h2 class="text-center">Service Booking Confirmation</h2>
-        <div class="alert alert-success text-center">
-            <h4>Your service request has been successfully placed!</h4>
-            <p>Service: {{ service.name }}</p>
-            <p>Professional: {{ professional.name }}</p>
-            <p>Status: Requested</p>
+<div class="center">
+    <h3>Book Service</h3>
+    <h4>Service: {{ service_name }}, Subcategory: 
+      {% for subcategory in subcategory_name %}
+          {{ subcategory.name }} 
+      {% endfor %}
+      </h4>
+      
+</div>
+
+<form action="/book_service/{{ customer_id }}/{{ service_id }}/{{ subcategory_id }}/{{ name }}" method="POST">
+    <div class="input_form">
+        <div class="mb-3">
+            <label for="address" class="form-label">Address</label>
+            <textarea class="form-control" name="address" id="address" rows="3" required></textarea>
         </div>
-        <div class="text-center">
-            <a href="{{ url_for('user_dashboard', name=user.name) }}" class="btn btn-primary">Go to Dashboard</a>
+        <div class="mb-3">
+            <label for="date_time" class="form-label">Date and Time</label>
+            <input type="datetime-local" class="form-control" name="date_time" id="date_time" required>
+        </div>
+        <div class="mb-3">
+            <button type="submit" class="btn btn-primary">Submit</button>
+            <a href="{{ url_for('user_dashboard', name=name) }}" class="btn btn-secondary">Cancel</a>
         </div>
     </div>
+</form>
+
 {% endblock %}
