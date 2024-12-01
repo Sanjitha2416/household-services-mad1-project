@@ -14,9 +14,7 @@
                                         <h5 class="card-title">{{ subcategory.name }}</h5>
                                         <h6 class="card-subtitle mb-2 text-muted">{{ subcategory.description }}</h6>
                                         <h6 class="card-subtitle mb-2 text-muted">{{ subcategory.price }}</h6>
-                                        {% for subcategory in service.subcategories %}
                                         <a href="{{ url_for('book_service', customer_id=customer.id, service_id=service.id, name=customer.name, subcategory_id=subcategory.id) }}" type="button" class="btn btn-outline-primary">Book</a>
-                                        {% endfor %}
                                     </div>
                                 </div>
                             </div>
@@ -41,7 +39,7 @@
                         <th>ID</th>
                         <th>Service Name</th>
                         <th>Professional Name</th>
-                        <th>Phone No.</th>
+                        <th>Date Booked</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -52,11 +50,13 @@
                             <td>{{ service.id }}</td>
                             <td>{{ service.service_name }}</td>
                             <td>{{ service.professional_name }}</td>
-                            <td>{{ service.professional_phone }}</td>
+                            <td>{{ service.date_time.strftime('%d %b %Y %I:%M %p') }}</td>
                             <td>{{ service.status }}</td>
                             <td>
                                 {% if service.status == 'Requested' %}
-                                    <button class="btn btn-warning btn-sm" onclick="closeService({{ service.id }})">Close it?</button>
+                                <form action="{{ url_for('close_service', service_id=service.id) }}" method="POST">
+                                        <button type="submit" class="btn btn-warning btn-sm">Close it?</button>
+                                    </form>
                                 {% else %}
                                     <button class="btn btn-success btn-sm" disabled>Closed</button>
                                 {% endif %}
@@ -68,11 +68,4 @@
         {% endif %}
     </div>
 
-    <script>
-        function closeService(serviceId) {
-            // Logic to close the service request.
-            // This will probably involve making an AJAX call to the server
-            console.log('Closing service with ID: ' + serviceId);
-        }
-    </script>
 {% endblock %}

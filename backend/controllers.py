@@ -242,7 +242,24 @@ def search_professionals(search_text):
 def user_dashboard(name):
     services=Service.query.all()
     customer = CustomerDetails.query.filter_by(email=name).first()
-    return render_template("user_dashboard.html",name=name,services=services,customer=customer)
+    service_history = db.session.query(
+        ServiceRequest.id,
+        Service.name.label("service_name"),
+        ProfessionalDetails.name.label("professional_name"),
+        ServiceRequest.date_time,
+        ServiceRequest.status
+    ).join(Service, ServiceRequest.service_id == Service.id) \
+     .join(ProfessionalDetails, ServiceRequest.professional_id == ProfessionalDetails.id) \
+     .filter(ServiceRequest.customer_id == customer.id) \
+     .all()
+
+    return render_template(
+        "user_dashboard.html",
+        name=name,
+        services=services,
+        customer=customer,
+        service_history=service_history
+    )
 
 @app.route("/book_service/<int:customer_id>/<int:service_id>/<int:subcategory_id>/<name>", methods=["GET", "POST"])
 def book_service(customer_id, service_id, subcategory_id, name):
@@ -262,10 +279,10 @@ def book_service(customer_id, service_id, subcategory_id, name):
     if not subcategory:
         return "Subcategory not found", 404
     
+    
     # Fetch the professional details for this service and subcategory
     professionals = ProfessionalDetails.query.filter_by(
         service_id=service.id, 
-        subcategory_id=subcategory.id, 
         is_available='TRUE', 
         status='Approved'
     ).all()
@@ -277,11 +294,12 @@ def book_service(customer_id, service_id, subcategory_id, name):
     if request.method == "POST":
         # Get form data (address and date/time)
         address = request.form.get("address")
-        date_time = request.form.get("date_time")
+        date_time_str = request.form.get("date_time")
+        date_time_obj = datetime.fromisoformat(date_time_str)
 
         # Create the service request
         new_request = ServiceRequest(
-            date_time=date_time,
+            date_time=date_time_obj,
             address=address,
             status="Requested",
             customer_id=customer.id,
@@ -307,3 +325,18 @@ def book_service(customer_id, service_id, subcategory_id, name):
         subcategory_name=subcategory.name, 
         name=customer.email
     )
+
+@app.route("/close_service/<int:service_id>", methods=["POST"])
+def close_service(service_id):
+    service_request = ServiceRequest.query.get(service_id)
+    if not service_request:
+        return "Service request not found", 404
+    
+    # Update the status of the service request to 'Closed'
+    service_request.status = "Closed"
+    professional = ProfessionalDetails.query.get(service_request.professional_id)
+    if professional:
+        professional.is_available = True 
+    db.session.commit()
+    
+    return redirect(f"/user/{service_request.customer.email}")
