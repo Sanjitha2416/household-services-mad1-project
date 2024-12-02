@@ -1,0 +1,23 @@
+{% extends "admin_layout.html" %}
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <div class="card" style="width: 18rem;">
+                <div class="card-body">
+                    <h5 class="card-title">User Ratings</h5>
+                    <img src="{{ url_for('static', filename='images/user_ratings_pie.jpeg') }}" width="200" height="200">
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card" style="width: 18rem;">
+                <div class="card-body">
+                    <h5 class="card-title">Service Requests</h5>
+                    <img src="{{ url_for('static', filename='images/service_requests_bar.jpeg') }}" width="200" height="200">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Service Remarks</title>
+</head>
+<body>
+    <h2>Service Remarks</h2>
+    <p>Request ID: {{ service_request.id }}</p>
+    <p>Service Name: {{ service_request.service.name }}</p>
+    <p>Subcategory: {% if service_request.service.subcategory %}{{ service_request.service.subcategory.name }}{% else %}No such subcategory{% endif %}</p>
+    <p>Date: {{ service_request.date_time.strftime('%d %b %Y %I:%M %p') }}</p>
+    <p>Professional Name: {{ service_request.professional.name }}</p>
+
+    <form method="POST">
+        <label>Service Rating:</label>
+        <input type="radio" name="rating" value="1"> 1
+        <input type="radio" name="rating" value="2"> 2
+        <input type="radio" name="rating" value="3"> 3
+        <input type="radio" name="rating" value="4"> 4
+        <input type="radio" name="rating" value="5"> 5
+        <br>
+        <label>Remarks (if any):</label>
+        <textarea name="remark" placeholder="Enter remarks"></textarea>
+        <br>
+        <button type="submit">Submit</button>
+        <a href="/user/{{ service_request.customer.email }}">Cancel</a>
+    </form>
+</body>
+</html>

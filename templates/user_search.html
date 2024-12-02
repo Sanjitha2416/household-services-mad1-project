@@ -1,0 +1,42 @@
+{% extends "user_layout.html" %}
+{% block content %}
+    <form method="POST" action="{{ url_for('user_search',name=name) }}" class="mb-4">
+        <div class="input-group">
+            <input type="text" name="query" class="form-control" placeholder="Search for services or requests">
+            <button class="btn btn-primary" type="submit">Search</button>
+        </div>
+    </form>
+
+    {% if search_results %}
+        <h3>Service Subcategories</h3>
+        <ul>
+            {% for subcategory in search_results %}
+                <li>{{ subcategory.name }}: {{ subcategory.description }} ({{ subcategory.price }})</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if request_history %}
+        <h3>Service Requests</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Service Name</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for request in request_history %}
+                    <tr>
+                        <td>{{ request.id }}</td>
+                        <td>{{ request.service_name }}</td>
+                        <td>{{ request.date_time }}</td>
+                        <td>{{ request.status }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}

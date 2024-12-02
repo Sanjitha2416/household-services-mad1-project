@@ -1,0 +1,38 @@
+{% extends "professional_layout.html" %}
+{% block content %}
+
+<div class="container mt-4">
+    <h2>Search Functionality</h2>
+
+    <form method="POST" action="{{ url_for('prof_search',email=professional.email) }}">
+        <label for="search_date">Enter Date:</label>
+        <input type="date" name="search_query" id="search_date" required>
+        <button type="submit">Search</button>
+    </form>
+    
+<table class="table">
+    <thead>
+        <tr>
+            <th>Service Request ID</th>
+            <th>Customer Name</th>
+            <th>Location</th>
+            <th>Status</th>
+            <th>Rating</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for service in service_data %}
+        <tr>
+            <td>{{ service.service_id }}</td>
+            <td>{{ service.customer_name }}</td>
+            <td>{{ service.location }}</td>
+            <td>{{ service.status }}</td>
+            <td>{{ service.rating if service.rating else 'N/A' }}</td>
+        </tr>
+        {% endfor %}
+        {% if message %}
+            <p>{{ message }}</p>
+        {% endif %}
+    </tbody>
+</table>
+{% endblock %}

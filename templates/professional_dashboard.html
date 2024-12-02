@@ -1,0 +1,71 @@
+{% extends "professional_layout.html" %}
+{% block content %}
+    <!-- Upcoming Services -->
+    <div class="container mt-5">
+        <h2 class="text-center">Service Requests</h2>
+        {% if upcoming_services %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Service Request ID</th>
+                        <th>Customer Name</th>
+                        <th>Date Booked</th>
+                        <th>Location</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for service in upcoming_services %}
+                        <tr>
+                            <td>{{ service.id }}</td>
+                            <td>{{ service.customer_name }}</td>
+                            <td>{{ service.date_time.strftime('%d %b %Y %I:%M %p') }}</td>
+                            <td>{{ service.location }}</td>
+                            <td>
+                                <form action="{{ url_for('accept_service', service_id=service.id) }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-success btn-sm">Accept</button>
+                                </form>
+                                <form action="{{ url_for('reject_service', service_id=service.id) }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-center text-muted">No pending service requests found.</p>
+        {% endif %}
+    </div>
+
+    <!-- Closed Services -->
+    <div class="container mt-5">
+        <h2 class="text-center">Closed Services</h2>
+        {% if closed_services %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Customer Name</th>
+                        <th>Date Booked</th>
+                        <th>Location</th>
+                        <th>Rating</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for service in closed_services %}
+                        <tr>
+                            <td>{{ service.id }}</td>
+                            <td>{{ service.customer_name }}</td>
+                            <td>{{ service.date_time.strftime('%d %b %Y %I:%M %p') }}</td>
+                            <td>{{ service.location }}</td>
+                            <td>{{ service.rating or 'Not Rated' }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-center text-muted">No closed services found.</p>
+        {% endif %}
+    </div>
+{% endblock %}

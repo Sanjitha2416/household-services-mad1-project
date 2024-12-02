@@ -86,8 +86,6 @@ class ServiceRequest(db.Model):
     professional_id = db.Column(db.Integer, db.ForeignKey("professional_details.id"), nullable=False)
     service_id = db.Column(db.Integer, db.ForeignKey("service.id"), nullable=False)
 
-    
-
     # Relationship: A service request can have one feedback
     feedback = db.relationship(
         'Feedback', 
