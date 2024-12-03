@@ -28,7 +28,7 @@ class ProfessionalDetails(db.Model):
     password = db.Column(db.String, nullable=False)
     role = db.Column(db.Integer, default=1, nullable=False)  # 0 = admin, 1 = professional
     name = db.Column(db.String, nullable=False)
-    service_id = db.Column(db.Integer, db.ForeignKey('service.id'), nullable=False)  # Foreign key to Service
+    service_id = db.Column(db.Integer, db.ForeignKey('service.id', ondelete='CASCADE'), nullable=False)  # Foreign key to Service
     experience = db.Column(db.Integer, nullable=False)  
     address = db.Column(db.String, nullable=False)
     pincode = db.Column(db.Integer, nullable=False)
