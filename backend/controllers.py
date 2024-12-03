@@ -111,15 +111,28 @@ def edit_service(service_id, name):
     service = Service.query.get(service_id)
     if not service:
         return "Service not found!", 404
-    
+
+    subcategories = Subcategory.query.filter_by(service_id=service.id).all()  # Fetch subcategories
+
     if request.method == "POST":
         service.name = request.form.get("name")
         service.description = request.form.get("description")
         service.base_price = request.form.get("base_price")
+        
+        # Handle subcategory updates
+        subcat_names = request.form.getlist("subcat_name[]")
+        subcat_descs = request.form.getlist("subcat_desc[]")
+        subcat_prices = request.form.getlist("subcat_price[]")
+        
+        for subcategory, subcat_name, subcat_desc, subcat_price in zip(subcategories, subcat_names, subcat_descs, subcat_prices):
+            subcategory.name = subcat_name
+            subcategory.description = subcat_desc
+            subcategory.price = subcat_price
+        
         db.session.commit()
-        return redirect(url_for("admin_dashboard",name=name)) 
+        return redirect(url_for("admin_dashboard", name=name)) 
 
-    return render_template("edit_service.html", service=service)
+    return render_template("edit_service.html", service=service, subcategories=subcategories)
 
 #deleting a service
 @app.route("/delete_service/<int:service_id>/<name>", methods=["POST"])
@@ -289,7 +302,7 @@ def book_service(customer_id, service_id, subcategory_id, name):
         status='Approved'
     ).all()
     if not professionals:
-        return "No professionals available", 404
+        return "No professionals available at the moment. Please try again later", 404
 
     professional = professionals[0]
 
@@ -554,120 +567,90 @@ def get_service_requests_summary():
     ).join(Service, ServiceRequest.service_id == Service.id).group_by(Service.name).all()
     return {service_name: count for service_name, count in services}
 
-@app.route("/professional_summary/<email>")
-def professional_summary(email):
-    professional = ProfessionalDetails.query.filter_by(email=email).first()
+
+def generate_professional_ratings_pie_chart(professional_id):
+    ratings_summary = get_professional_ratings_summary(professional_id)
+    labels = list(ratings_summary.keys())
+    sizes = list(ratings_summary.values())
+    plt.figure(figsize=(6, 6))
+    plt.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140)
+    plt.title("Professional Ratings for Services")
+    pie_chart_path = "./static/images/professional_ratings_pie.jpeg"
+    plt.savefig(pie_chart_path)
+    plt.clf()
+    return pie_chart_path
+
+def get_professional_ratings_summary(professional_id):
+    ratings = (
+        db.session.query(Feedback.rating, db.func.count(Feedback.id))
+        .join(ServiceRequest, Feedback.request_id == ServiceRequest.id)
+        .filter(ServiceRequest.professional_id == professional_id, ServiceRequest.status == "Closed")
+        .group_by(Feedback.rating)
+        .all()
+    )
+    return {f"Rating {r[0]}": r[1] for r in ratings}
+
+@app.route("/professional/<name>/summary")
+def professional_summary(name):
+    professional = ProfessionalDetails.query.filter_by(email=name).first()
 
     if not professional:
         return "Professional not found", 404
 
-    # Generate charts
-    ratings_plot = generate_professional_ratings_summary(professional.id)
-    ratings_plot.savefig("./static/images/prof_ratings_summary.jpeg")
-    ratings_plot.clf()
+    # Generate pie chart for ratings
+    pie_chart_path = generate_professional_ratings_pie_chart(professional.id)
 
-    services_plot = generate_professional_services_summary(professional.id)
-    services_plot.savefig("./static/images/prof_services_summary.jpeg")
-    services_plot.clf()
-
-    return render_template("professional_summary.html", professional=professional)
-
-
-def generate_professional_ratings_summary(professional_id):
-    ratings = db.session.query(
-        Feedback.rating, 
-        db.func.count(Feedback.rating)
-    ).join(ServiceRequest, ServiceRequest.id == Feedback.request_id) \
-      .filter(ServiceRequest.professional_id == professional_id, ServiceRequest.status == "Closed") \
-      .group_by(Feedback.rating).all()
-
-    # Format the results into a dictionary for easy use in the pie chart
-    summary = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0}
-    for rating, count in ratings:
-        summary[rating] = count
-
-    values = [summary[5], summary[4], summary[3], summary[2], summary[1]]
-    labels = ['Excellent', 'Good', 'Average', 'Poor']
-    labels = [label for label, value in zip(['Excellent', 'Good', 'Average', 'Poor'], values) if value > 0]
-    values = [value for value in values if value > 0]
-    plt.pie(values, labels=labels, autopct='%1.1f%%', startangle=90)
-    
-    plt.title("User Ratings for Closed Services")
-    return plt
-
-def generate_professional_services_summary(professional_id):
+    # Fetch counts for bar chart
     services = (
-        ServiceRequest.query.filter_by(professional_id=professional_id)
-        .with_entities(ServiceRequest.status, db.func.count(ServiceRequest.id))
+        db.session.query(ServiceRequest.status, db.func.count(ServiceRequest.id))
+        .filter(ServiceRequest.professional_id == professional.id)
         .group_by(ServiceRequest.status)
         .all()
     )
-    
-    # Debug: print the result of the query
-    print(services)
-
-    summary = {"Received": 0, "Accepted": 0, "Rejected": 0}
-
+    summary = {"Received": 0, "Rejected": 0}
     for status, count in services:
-        if status == "Pending":
+        if status == "Requested" or status == "Accepted" or status == "Closed" or status == "Rejected":
             summary["Received"] += count
-        elif status == "Accepted":
-            summary["Accepted"] += count
         elif status == "Rejected":
             summary["Rejected"] += count
+
+    # Generate bar chart
+    fig, ax = plt.subplots()
+    ax.bar(summary.keys(), summary.values(), color=["green", "red"])
+    ax.set_xlabel("Status")
+    ax.set_ylabel("Count")
+    ax.set_title("Service Request Statuses")
+    bar_chart_path = f"./static/images/professional_bar_chart.jpeg"
+    plt.savefig(bar_chart_path)
+    plt.clf()
+
+    return render_template("prof_summary.html", professional=professional, pie_chart=pie_chart_path, bar_chart=bar_chart_path)
+
+@app.route("/user_summary/<name>")
+def user_summary(name):
+    # Fetch customer details
+    customer = CustomerDetails.query.filter_by(email=name).first()
     
-    labels = list(summary.keys())
-    values = list(summary.values())
-
-    if sum(values) > 0:
-        plt.bar(labels, values, color=["blue", "green", "red"])
-        plt.title("Service Status Summary")
-        plt.xlabel("Status")
-        plt.ylabel("Count")
-    else:
-        plt.bar(labels, [0]*len(labels), color=["blue", "green", "red"])  # Ensure bar chart has empty bars
-        plt.title("No Data Available")
-
-    return plt
-
-@app.route("/user_summary/<email>")
-def user_summary(email):
-    user = CustomerDetails.query.filter_by(email=email).first()
-
-    if not user:
+    if not customer:
         return "User not found", 404
 
-    # Generate chart for service request status summary
-    status_plot = generate_user_status_summary(user.id)
-    status_plot.savefig("./static/images/user_status_summary.jpeg")
-    status_plot.clf()
+    # Fetch summary details
+    total_requested = ServiceRequest.query.filter_by(customer_id=customer.id).count()
+    total_closed = ServiceRequest.query.filter_by(customer_id=customer.id, status="Closed").count()
 
-    return render_template("user_summary.html", user=user)
+    # Prepare data for the chart
+    labels = ["Requested", "Closed"]
+    values = [total_requested, total_closed]
 
-def generate_user_status_summary(user_id):
-    statuses = (
-        ServiceRequest.query.filter_by(user_id=user_id)
-        .with_entities(ServiceRequest.status, db.func.count(ServiceRequest.id))
-        .group_by(ServiceRequest.status)
-        .filter(ServiceRequest.status.in_(['Requested', 'Closed']))  # Filter for only Requested and Closed
-        .all()
-    )
-
-    # Create a dictionary for summary
-    summary = {"Requested": 0, "Closed": 0}
-    for status, count in statuses:
-        if status == "Requested":
-            summary["Requested"] = count
-        elif status == "Closed":
-            summary["Closed"] = count
-    
-    labels = list(summary.keys())
-    values = list(summary.values())
-
-    # Plot the bar chart
+    # Generate chart
     plt.bar(labels, values, color=["blue", "red"])
-    plt.title("Service Request Status Summary")
-    plt.xlabel("Status")
+    plt.title("User Service Summary")
+    plt.xlabel("Service Status")
     plt.ylabel("Count")
-    
-    return plt
+    # Set y-axis show only whole numbers
+    max_value = max(values) + 1  # Add 1 to include the maximum count
+    plt.yticks(range(0, max_value + 1))
+    plt.savefig("./static/images/user_service_summary.jpeg")
+    plt.clf()
+
+    return render_template("user_summary.html", name=name, customer=customer)

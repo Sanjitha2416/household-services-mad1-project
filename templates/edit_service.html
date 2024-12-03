@@ -11,12 +11,34 @@
             <label for="description">Description</label>
             <textarea class="form-control" id="description" name="description" required>{{ service.description }}</textarea>
         </div>
-        <div class="form-group">
-            <label for="base_price">Base Price</label>
-            <input type="number" class="form-control" id="base_price" name="base_price" value="{{ service.base_price }}" required>
+        <div id="subcategories">
+            <label>Subcategories:</label>
+            {% for subcategory in subcategories %}
+            <div class="subcategory">
+                <input type="text" name="subcat_name[]" value="{{ subcategory.name }}" placeholder="Subcategory Name" required>
+                <textarea name="subcat_desc[]" placeholder="Subcategory Description" required>{{ subcategory.description }}</textarea>
+                <input type="number" name="subcat_price[]" value="{{ subcategory.price }}" placeholder="Subcategory Price" required>
+            </div>
+            {% endfor %}
         </div>
+
+        <button type="button" onclick="addSubcategory()">Add Another Subcategory</button>
         <button type="submit" class="btn btn-primary">Save Changes</button>
         <a href="{{ url_for('admin_dashboard', name='admin') }}" class="btn btn-secondary">Cancel</a>
     </form>
 </div>
+
+<script>
+function addSubcategory() {
+    const container = document.getElementById('subcategories');
+    const subcatDiv = document.createElement('div');
+    subcatDiv.classList.add('subcategory');
+    subcatDiv.innerHTML = `
+      <input type="text" name="subcat_name[]" placeholder="Subcategory Name" required>
+      <textarea name="subcat_desc[]" placeholder="Subcategory Description" required></textarea>
+      <input type="number" name="subcat_price[]" placeholder="Subcategory Price" required>
+    `;
+    container.appendChild(subcatDiv);
+}
+</script>
 {% endblock %}
